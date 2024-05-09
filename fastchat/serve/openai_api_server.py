@@ -1005,4 +1005,4 @@ if __name__ == "__main__":
             ssl_certfile=os.environ["SSL_CERTFILE"],
         )
     else:
-        uvicorn.run(app, host=args.host, port=args.port, log_level="error")
+        uvicorn.run(app, host=args.host, port=args.port, log_level="info")
