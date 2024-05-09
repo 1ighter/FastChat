@@ -197,3 +197,12 @@ class CompletionStreamResponse(BaseModel):
     created: int = Field(default_factory=lambda: int(time.time()))
     model: str
     choices: List[CompletionResponseStreamChoice]
+
+class MyChatCompletionRequest(BaseModel):
+    model: Optional[str] = "Qwen-7B-Chat"
+    first_id: str
+    second_id: str
+    keywords : List[str]
+    product: str
+    n: Optional[int] = 10
+    stop: Optional[Union[str, List[str]]] = None
