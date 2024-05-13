@@ -804,6 +804,8 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
     model = "Qwen-7B-Chat"
     first_id = request.first_id
     second_id = request.second_id
+    if second_id == "":
+        second_id = first_id
     keywords = " ".join(request.keywords)
     prompt  = "你是一个非常厉害的广告创意专家，给你一组广告主输入的关键词和相关行业信息，关键词之间用空格分隔，生成一个与行业相关，能够吸引用户点击的爆款广告标题，" \
           "可以不完全使用这些关键词，不要返回其他内容，除非关键词中提供品牌名称，否则不要额外生成其他品牌或者平台的名称，生成的标题最多不要超过24个字符。一级行业信息为{}，二级行业为{}， 关键词为：{}".format(first_id, second_id, keywords)
