@@ -807,8 +807,12 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
     if second_id == "":
         second_id = first_id
     keywords = " ".join(request.keywords)
-    prompt  = "你是一个非常厉害的广告创意专家，给你一组广告主输入的关键词和相关行业信息，关键词之间用空格分隔，生成一个与行业相关，能够吸引用户点击的爆款广告标题，" \
-          "可以不完全使用这些关键词，不要返回其他内容，除非关键词中提供品牌名称，否则不要额外生成其他品牌或者平台的名称，生成的标题最多不要超过24个字符。一级行业信息为{}，二级行业为{}， 关键词为：{}".format(first_id, second_id, keywords)
+    prompt = "你是一个非常厉害的广告创意专家，给你一组广告主输入的关键词和相关行业信息，关键词之间用空格分隔，生成一个与行业相关，能够吸引用户点击的爆款广告标题，" \
+             "可以不完全使用这些关键词，不要返回其他内容，除非关键词中提供品牌名称，否则不要额外生成其他品牌或者平台的名称，生成的标题最多不要超过24个字符。一级行业信息为{}，二级行业为{}， 关键词为：{}".format(
+        first_id, second_id, keywords)
+    if len(request.keywords) == 0:
+        prompt = "你是一个非常厉害的广告创意专家，给你一组广告主输入行业信息，关键词之间用空格分隔，生成一个与行业相关，能够吸引用户点击的爆款广告标题，" \
+                    "不要返回其他内容，除非关键词中提供品牌名称，否则不要额外生成其他品牌或者平台的名称，生成的标题最多不要超过24个字符。一级行业信息为{}，二级行业为{}".format(first_id, second_id, keywords)
     messages = [{"role": "user", "content": prompt}]
     worker_addr = await get_worker_address(model)
     gen_params = await get_gen_params(
