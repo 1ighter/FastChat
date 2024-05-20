@@ -799,6 +799,23 @@ async def count_tokens(request: APITokenCheckRequest):
 
     return APITokenCheckResponse(prompts=checkedList)
 
+def sort_by_keyword_count(data, keywords):
+    # 计算每条数据中出现的关键词数量
+    data_with_counts = []
+    for text in data:
+        count = 0
+        for keyword in keywords:
+            count += text.count(keyword)
+        data_with_counts.append((text, count))
+
+    # 按照关键词数量从多到少排序
+    sorted_data = sorted(data_with_counts, key=lambda x: x[1], reverse=True)
+
+    # 提取排序后的文本
+    sorted_texts = [text for text, count in sorted_data]
+
+    return sorted_texts
+
 @app.post("/v2/chat/completions")
 async def create_chat_completion_v2(request: MyChatCompletionRequest):
     model = "Qwen-7B-Chat"
@@ -870,6 +887,7 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
     ChatCompResponse = ChatCompletionResponse(model=model, choices=choices, usage=usage)
 
     res = [ChatCompResponse.choices[i].message.content.strip() for i in range(request.n)]
+    res = sort_by_keyword_count(res, request.keywords)
     res = "#".join(res)
     return res
 
