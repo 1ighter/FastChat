@@ -1404,7 +1404,7 @@ register_conv_template(
         name="qwen-7b-chat",
         system_template="",
         system_message="",
-        roles=("", ""),
+        roles=("<|im_start|>user", "<|im_start|>assistant"),
         sep_style=SeparatorStyle.CHATML,
         sep="<|im_end|>",
         stop_token_ids=[
