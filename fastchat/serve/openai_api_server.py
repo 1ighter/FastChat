@@ -799,7 +799,7 @@ async def count_tokens(request: APITokenCheckRequest):
 
     return APITokenCheckResponse(prompts=checkedList)
 
-def sort_by_keyword_count(data, keywords):
+async def sort_by_keyword_count(data, keywords):
     # 计算每条数据中出现的关键词数量
     data_with_counts = []
     for text in data:
@@ -887,7 +887,7 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
     ChatCompResponse = ChatCompletionResponse(model=model, choices=choices, usage=usage)
 
     res = [ChatCompResponse.choices[i].message.content.strip() for i in range(request.n)]
-    res = sort_by_keyword_count(res, request.keywords)
+    res = await sort_by_keyword_count(res, request.keywords)
     res = "#".join(res)
     return res
 
