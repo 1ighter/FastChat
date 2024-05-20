@@ -799,7 +799,7 @@ async def count_tokens(request: APITokenCheckRequest):
 
     return APITokenCheckResponse(prompts=checkedList)
 
-def sort_by_keyword_count(data, keywords):
+async def sort_by_keyword_count(data, keywords):
     # 计算每条数据中出现的关键词数量
     data_with_counts = []
     for text in data:
