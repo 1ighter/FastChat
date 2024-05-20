@@ -818,7 +818,7 @@ def sort_by_keyword_count(data, keywords):
 
 @app.post("/v2/chat/completions")
 async def create_chat_completion_v2(request: MyChatCompletionRequest):
-    model = "qwen-7B-chat"
+    model = "qwen-7b-chat"
     first_id = request.first_id
     second_id = request.second_id
     if second_id == "":
