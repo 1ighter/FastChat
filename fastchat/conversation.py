@@ -1402,8 +1402,8 @@ register_conv_template(
 register_conv_template(
     Conversation(
         name="qwen-7b-chat",
-        system_template="",
-        system_message="",
+        system_template="<|im_start|>system\n{system_message}",
+        system_message="You are a helpful assistant.",
         roles=("<|im_start|>user", "<|im_start|>assistant"),
         sep_style=SeparatorStyle.CHATML,
         sep="<|im_end|>",
