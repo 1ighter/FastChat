@@ -828,7 +828,7 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
              "可以不完全使用这些关键词，只有一个关键词时，要尽可能生成长度比较长的标题，不要返回其他内容，除非关键词中提供品牌名称，其他价格，品牌，平台，日期等需要用户补充的信息用xxx替换掉，生成的标题最少不少于6个字符，最多不要超过18个字符。一级行业信息为{}，二级行业为{}， 关键词为：{}。".format(first_id, second_id, keywords)
     if len(request.keywords) == 0:
         prompt = "你是一个非常厉害的广告创意专家，给你一组广告主输入的相关行业信息，生成一个与行业相关，能够吸引用户点击的爆款广告标题，要正向宣传潜在的产品，标题一定要通顺，标题内容要完整，符合b站气质，" \
-                 "要尽可能生成长度比较长的标题，不要返回其他内容，除非关键词中提供品牌名称，其他价格，品牌，平台，日期等需要用户补充的信息用xxx替换掉，生成的标题最少不少于6个字符，最多不要超过18个字符。一级行业信息为{}，二级行业为{}。".format(first_id, second_id)
+                 "要尽可能生成长度适中的标题，不要返回其他内容，除非关键词中提供品牌名称，其他价格，品牌，平台，日期等需要用户补充的信息用xxx替换掉，生成的标题最少不少于6个字符，最多不要超过18个字符。一级行业信息为{}，二级行业为{}。".format(first_id, second_id)
     messages = [{"role": "user", "content": prompt}]
     worker_addr = await get_worker_address(model)
     gen_params = await get_gen_params(
