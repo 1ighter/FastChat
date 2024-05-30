@@ -66,7 +66,7 @@ from fastchat.protocol.api_protocol import (
     APITokenCheckResponseItem,
 )
 
-from fastchat.serve import nsfw
+import nsfw
 from fastchat.utils import build_logger
 
 logger = build_logger("openai_api_server", "openai_api_server.log")
