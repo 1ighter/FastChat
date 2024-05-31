@@ -830,7 +830,8 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
     second_id = request.second_id
     if second_id == "":
         second_id = first_id
-    banwords = nsfw.ban_words()
+    nsfw_ = nsfw()
+    banwords = nsfw_.ban_words()
     print(banwords)
     keywords = request.keywords
     if len(keywords) != 0:
