@@ -69,6 +69,8 @@ from fastchat.protocol.api_protocol import (
 
 from fastchat.utils import build_logger
 
+from fastchat.serve import nsfw
+
 logger = build_logger("openai_api_server", "openai_api_server.log")
 
 conv_template_map = {}
@@ -828,9 +830,12 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
     second_id = request.second_id
     if second_id == "":
         second_id = first_id
+    nsfw = nsfw()
+    banwords = nsfw.ban_words()
+    print(banwords)
     keywords = request.keywords
     if len(keywords) != 0:
-        for ban_word in ban_words:
+        for ban_word in banwords:
             for keyword in keywords:
                 if ban_word in keyword:
                     keywords.remove(keyword)
