@@ -899,6 +899,9 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
     ChatCompResponse = ChatCompletionResponse(model=model, choices=choices, usage=usage)
 
     res = [ChatCompResponse.choices[i].message.content.strip() for i in range(request.n)]
+
+    #filter out the results that contain banwords
+    res = [text for text in res if not any(ban_word in text for ban_word in banwords)]
     res = sort_by_keyword_count(res, request.keywords)
     res = "#".join(res)
     return res
