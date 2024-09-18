@@ -205,4 +205,5 @@ class MyChatCompletionRequest(BaseModel):
     keywords : List[str]
     product: str
     n: Optional[int] = 10
+    item: Optional[str] = None
     stop: Optional[Union[str, List[str]]] = None
