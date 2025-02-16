@@ -69,7 +69,7 @@ from fastchat.protocol.api_protocol import (
 
 
 from fastchat.utils import build_logger
-
+from fastchat.style import AdTitleGenerator
 from fastchat.nsfw import nsfw
 
 logger = build_logger("openai_api_server", "openai_api_server.log")
@@ -821,6 +821,7 @@ def sort_by_keyword_count(data, keywords):
 
     return sorted_texts
 
+
 @app.post("/v2/chat/completions")
 async def create_chat_completion_v2(request: MyChatCompletionRequest):
     model = "Qwen-7B-Chat"
@@ -839,57 +840,53 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
     nsfw_ = nsfw()
     banwords = nsfw_.banwords()
     keywords = request.keywords
-    if len(keywords) != 0:
+    if len(keywords)!= 0:
         for ban_word in banwords:
             for keyword in keywords:
                 if ban_word in keyword:
                     keywords.remove(keyword)
-    keywords = " ".join(keywords)
-    prompt = "你是一个非常厉害的广告创意专家，擅长为商品定制广告标题。现在有商家想找你给某款产品定制广告标题。" \
-             "这款产品属于一级行业“{}”下辖的二级行业“{}”，商家给定的若干个关键词是“{}”（多个关键词之间以空格分割）。" \
-             "请你根据这款商品的行业信息以及给定的关键词，定制一个符合b站风格、能够吸引用户点击的爆款广告标题：" \
-             "注意1：生成的标题要正向宣传产品，可以不完全使用给定关键词。" \
-             "注意2：不要返回除标题以外的其他内容，如果关键词中不包含品牌，就不要在生成的标题中出现任何品牌。" \
-             "注意3：生成的标题最少不少于5个字符，最多不要超过18个字符。" \
-             "注意4: 生成的标题不要出现“天花板”等词汇".format(first_id, second_id, keywords)
-    if len(keywords) == 0:
-        if len(item) != 0:
-            prompt = "你是一个非常厉害的广告创意专家，给你一组广告主输入的相关行业信息和产品名，生成一个与行业相关，能够吸引用户点击的爆款广告标题，要正向宣传潜在的产品，标题一定要通顺，标题内容要完整，符合b站气质，" \
-                     "要尽可能生成长度适中的标题，不要返回其他内容，除非关键词中提供品牌名称，其他价格，品牌，平台，日期等需要用户补充的信息用xxx替换掉，生成的标题最少不少于6个字符，最多不要超过18个字符。一级行业信息为{}，二级行业为{}，产品名为{}。".format(first_id, second_id, item)
-        else:
-            prompt = "你是一个非常厉害的广告创意专家，给你一组广告主输入的相关行业信息，生成一个与行业相关，能够吸引用户点击的爆款广告标题，要正向宣传潜在的产品，标题一定要通顺，标题内容要完整，符合b站气质，" \
-                    "要尽可能生成长度适中的标题，不要返回其他内容，除非关键词中提供品牌名称，其他价格，品牌，平台，日期等需要用户补充的信息用xxx替换掉，生成的标题最少不少于6个字符，最多不要超过18个字符。一级行业信息为{}，二级行业为{}。".format(first_id, second_id)
-    messages = [{"role": "user", "content": prompt}]
-    worker_addr = await get_worker_address(model)
-    gen_params = await get_gen_params(
-        model,
-        worker_addr,
-        messages,
-        temperature=1.0,
-        top_p=1,
-        top_k=80,
-        presence_penalty=2.0,
-        frequency_penalty=1,
-        max_tokens=100,
-        echo=False,
-        stop=request.stop,
+
+    # 实例化AdTitleGenerator类
+    generator = AdTitleGenerator()
+    # 调用generate_titles方法生成prompt
+    prompts = generator.generate_titles(
+        primary_industry=first_id,
+        secondary_industry=second_id,
+        seo_keywords=keywords,
+        num_titles=request.n
     )
-
-    max_new_tokens, error_check_ret = await check_length(
-        request,
-        gen_params["prompt"],
-        gen_params["max_new_tokens"],
-        worker_addr,
-    )
-
-    # if error_check_ret is not None:
-    #     return error_check_ret
-
-    gen_params["max_new_tokens"] = max_new_tokens
 
     choices = []
     chat_completions = []
-    for i in range(request.n):
+    for prompt in prompts:
+        messages = [{"role": "user", "content": prompt}]
+        worker_addr = await get_worker_address(model)
+        gen_params = await get_gen_params(
+            model,
+            worker_addr,
+            messages,
+            temperature=1.2,
+            top_p=1,
+            top_k=80,
+            presence_penalty=2.0,
+            frequency_penalty=1,
+            max_tokens=100,
+            echo=False,
+            stop=request.stop,
+        )
+
+        max_new_tokens, error_check_ret = await check_length(
+            request,
+            gen_params["prompt"],
+            gen_params["max_new_tokens"],
+            worker_addr,
+        )
+
+        # if error_check_ret is not None:
+        #     return error_check_ret
+
+        gen_params["max_new_tokens"] = max_new_tokens
+
         content = asyncio.create_task(generate_completion(gen_params, worker_addr))
         chat_completions.append(content)
     try:
@@ -901,7 +898,7 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
         if isinstance(content, str):
             content = json.loads(content)
 
-        if content["error_code"] != 0:
+        if content["error_code"]!= 0:
             return create_error_response(content["error_code"], content["text"])
         choices.append(
             ChatCompletionResponseChoice(
@@ -918,7 +915,7 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
 
     res = [ChatCompResponse.choices[i].message.content.strip() for i in range(request.n)]
 
-    #filter out the results that contain banwords
+    # filter out the results that contain banwords
     res = [
         re.sub(r'\{.*?\}', '', text)
         for text in res
@@ -928,6 +925,115 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
     res = sort_by_keyword_count(res, request.keywords)
     res = "#".join(res)
     return res
+
+
+# @app.post("/v2/chat/completions")
+# async def create_chat_completion_v2(request: MyChatCompletionRequest):
+#     model = "Qwen-7B-Chat"
+#     first_id = request.first_id
+#     second_id = request.second_id
+#     try:
+#         product = request.product
+#     except:
+#         product = ""
+#     try:
+#         item = request.item
+#     except:
+#         item = ""
+#     if second_id == "":
+#         second_id = first_id
+#     nsfw_ = nsfw()
+#     banwords = nsfw_.banwords()
+#     keywords = request.keywords
+#     if len(keywords) != 0:
+#         for ban_word in banwords:
+#             for keyword in keywords:
+#                 if ban_word in keyword:
+#                     keywords.remove(keyword)
+#     keywords = " ".join(keywords)
+#     prompt = "你是一个非常厉害的广告创意专家，擅长为商品定制广告标题。现在有商家想找你给某款产品定制广告标题。" \
+#              "这款产品属于一级行业“{}”下辖的二级行业“{}”，商家给定的若干个关键词是“{}”（多个关键词之间以空格分割）。" \
+#              "请你根据这款商品的行业信息以及给定的关键词，定制一个符合b站风格、能够吸引用户点击的爆款广告标题：" \
+#              "注意1：生成的标题要正向宣传产品，可以不完全使用给定关键词。" \
+#              "注意2：不要返回除标题以外的其他内容，如果关键词中不包含品牌，就不要在生成的标题中出现任何品牌。" \
+#              "注意3：生成的标题最少不少于5个字符，最多不要超过18个字符。" \
+#              "注意4: 生成的标题不要出现“天花板”等词汇".format(first_id, second_id, keywords)
+#     if len(keywords) == 0:
+#         if len(item) != 0:
+#             prompt = "你是一个非常厉害的广告创意专家，给你一组广告主输入的相关行业信息和产品名，生成一个与行业相关，能够吸引用户点击的爆款广告标题，要正向宣传潜在的产品，标题一定要通顺，标题内容要完整，符合b站气质，" \
+#                      "要尽可能生成长度适中的标题，不要返回其他内容，除非关键词中提供品牌名称，其他价格，品牌，平台，日期等需要用户补充的信息用xxx替换掉，生成的标题最少不少于6个字符，最多不要超过18个字符。一级行业信息为{}，二级行业为{}，产品名为{}。".format(first_id, second_id, item)
+#         else:
+#             prompt = "你是一个非常厉害的广告创意专家，给你一组广告主输入的相关行业信息，生成一个与行业相关，能够吸引用户点击的爆款广告标题，要正向宣传潜在的产品，标题一定要通顺，标题内容要完整，符合b站气质，" \
+#                     "要尽可能生成长度适中的标题，不要返回其他内容，除非关键词中提供品牌名称，其他价格，品牌，平台，日期等需要用户补充的信息用xxx替换掉，生成的标题最少不少于6个字符，最多不要超过18个字符。一级行业信息为{}，二级行业为{}。".format(first_id, second_id)
+#     messages = [{"role": "user", "content": prompt}]
+#     worker_addr = await get_worker_address(model)
+#     gen_params = await get_gen_params(
+#         model,
+#         worker_addr,
+#         messages,
+#         temperature=1.0,
+#         top_p=1,
+#         top_k=80,
+#         presence_penalty=2.0,
+#         frequency_penalty=1,
+#         max_tokens=100,
+#         echo=False,
+#         stop=request.stop,
+#     )
+#
+#     max_new_tokens, error_check_ret = await check_length(
+#         request,
+#         gen_params["prompt"],
+#         gen_params["max_new_tokens"],
+#         worker_addr,
+#     )
+#
+#     # if error_check_ret is not None:
+#     #     return error_check_ret
+#
+#     gen_params["max_new_tokens"] = max_new_tokens
+#
+#     choices = []
+#     chat_completions = []
+#     for i in range(request.n):
+#         content = asyncio.create_task(generate_completion(gen_params, worker_addr))
+#         chat_completions.append(content)
+#     try:
+#         all_tasks = await asyncio.gather(*chat_completions)
+#     except Exception as e:
+#         return create_error_response(ErrorCode.INTERNAL_ERROR, str(e))
+#     usage = UsageInfo()
+#     for i, content in enumerate(all_tasks):
+#         if isinstance(content, str):
+#             content = json.loads(content)
+#
+#         if content["error_code"] != 0:
+#             return create_error_response(content["error_code"], content["text"])
+#         choices.append(
+#             ChatCompletionResponseChoice(
+#                 index=i,
+#                 message=ChatMessage(role="assistant", content=content["text"]),
+#                 finish_reason=content.get("finish_reason", "stop"),
+#             )
+#         )
+#         if "usage" in content:
+#             task_usage = UsageInfo.parse_obj(content["usage"])
+#             for usage_key, usage_value in task_usage.dict().items():
+#                 setattr(usage, usage_key, getattr(usage, usage_key) + usage_value)
+#     ChatCompResponse = ChatCompletionResponse(model=model, choices=choices, usage=usage)
+#
+#     res = [ChatCompResponse.choices[i].message.content.strip() for i in range(request.n)]
+#
+#     #filter out the results that contain banwords
+#     res = [
+#         re.sub(r'\{.*?\}', '', text)
+#         for text in res
+#         if not any(ban_word in text for ban_word in banwords)
+#     ]
+#
+#     res = sort_by_keyword_count(res, request.keywords)
+#     res = "#".join(res)
+#     return res
 
 @app.post("/api/v1/chat/completions")
 async def create_chat_completion(request: APIChatCompletionRequest):
