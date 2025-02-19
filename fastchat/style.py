@@ -80,7 +80,7 @@ class AdTitleGenerator:
 
 
             # 构建prompt
-            prompt = f"""基于以下标题，抽取核心商品与卖点改写为另一个广告标题：原标题为{' '.join(seo_keywords)},
+            prompt = f"""基于以下标题，抽取核心商品与卖点改写为另一个广告标题：原标题为{seo_keywords[0]},
                 风格特征为{','.join(selected_features['style'])},
                 结构结构为{','.join(selected_features['structure'])},
                 引导用户行为为{','.join(selected_features['interaction'])},
