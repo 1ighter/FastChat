@@ -854,7 +854,7 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
         secondary_industry=second_id,
         seo_keywords=keywords,
         num_titles=request.n
-    ) if len(keywords) == 1 and keywords[0] >= 7 else generator.generate_titles(
+    ) if len(keywords) == 1 and len(keywords[0]) >= 7 else generator.generate_titles(
         primary_industry=first_id,
         secondary_industry=second_id,
         seo_keywords=keywords,
