@@ -854,6 +854,11 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
         secondary_industry=second_id,
         seo_keywords=keywords,
         num_titles=request.n
+    ) if len(keywords) == 1 and keywords[0] >= 7 else generator.generate_titles_by_title(
+        primary_industry=first_id,
+        secondary_industry=second_id,
+        seo_keywords=keywords,
+        num_titles=request.n
     )
 
     choices = []
@@ -867,7 +872,7 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
             messages,
             temperature=1.2,
             top_p=1,
-            top_k=80,
+            top_k=60,
             presence_penalty=2.0,
             frequency_penalty=1,
             max_tokens=100,
