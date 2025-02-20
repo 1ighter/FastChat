@@ -80,18 +80,19 @@ class AdTitleGenerator:
 
 
             # 构建prompt
-            prompt = f"""基于以下标题，抽取核心商品与卖点改写为另一个广告标题：原标题为{seo_keywords[0]},
-                风格特征为{','.join(selected_features['style'])},
-                结构结构为{','.join(selected_features['structure'])},
-                引导用户行为为{','.join(selected_features['interaction'])},
-                一级行业为{primary_industry},
-                二级行业为{secondary_industry}。
-                创意增强：{'/'.join(random.sample(self.enhancers, 2))}"""
+            prompts = [
+                "请根据以下标题生成一个类似的标题：",
+                "请根据以下标题进行扩展：",
+                "请用不同的表达方式改写以下标题：",
+                "请用更吸引人的方式改写以下标题：",
+                "请根据以下标题，生成一个更具创意的标题："
+            ]
 
             # f"与行业适配程度为{adaptation}",
 
             # 此处应调用大模型API生成实际标题（模拟演示）
-            results.append(prompt)
+
+            results.append(random.choice(prompts) + seo_keywords[0])
 
         return results
 
@@ -99,10 +100,10 @@ class AdTitleGenerator:
 # 使用示例（参考资料<a target="_blank" href="https://blog.51cto.com/topic/79a01a9e252399c.html" class="hitref" data-title="python 将模型封装成服务_51CTO博客" data-snippet='51CTO博客已为您找到关于python 将模型封装成服务的相关内容,包含IT学习相关文档代码介绍、相关教程视频课程,以及python 将模型封装成服务问答内容。更多python 将模型封装成...' data-url="https://blog.51cto.com/topic/79a01a9e252399c.html">3</a><a target="_blank" href="https://blog.51cto.com/topic/c8e3dbee2d13be0.html" class="hitref" data-title="python在线封装_51CTO博客" data-snippet='51CTO博客已为您找到关于python在线封装的相关内容,包含IT学习相关文档代码介绍、相关教程视频课程,以及python在线封装问答内容。更多python在线封装相关解答可以来51CTO博客...' data-url="https://blog.51cto.com/topic/c8e3dbee2d13be0.html">5</a>）
 if __name__ == "__main__":
     generator = AdTitleGenerator()
-    titles = generator.generate_titles(
+    titles = generator.generate_titles_by_title(
         primary_industry="美妆",
         secondary_industry="护肤品",
-        seo_keywords=["天然成分", "抗衰老"],
+        seo_keywords=["茶吧机牌子哪个好"],
         num_titles=3
     )
     for idx, title in enumerate(titles, 1):
