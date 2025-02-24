@@ -769,7 +769,6 @@ async def get_embedding(payload: Dict[str, Any]):
 
 ### GENERAL API - NOT OPENAI COMPATIBLE ###
 
-
 @app.post("/api/v1/token_check")
 async def count_tokens(request: APITokenCheckRequest):
     """
