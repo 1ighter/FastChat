@@ -849,17 +849,34 @@ async def create_chat_completion_v2(request: MyChatCompletionRequest):
     # 实例化AdTitleGenerator类
     generator = AdTitleGenerator()
     # 调用generate_titles方法生成prompt
-    prompts = generator.generate_titles_by_title(
-        primary_industry=first_id,
-        secondary_industry=second_id,
-        seo_keywords=keywords,
-        num_titles=request.n
-    ) if len(keywords) == 1 and len(keywords[0]) >= 7 else generator.generate_titles(
-        primary_industry=first_id,
-        secondary_industry=second_id,
-        seo_keywords=keywords,
-        num_titles=request.n
-    )
+    if len(keywords) == 0:
+        if len(item) != 0:
+            prompts = generator.generate_titles_by_title(
+                primary_industry=first_id,
+                secondary_industry=second_id,
+                seo_keywords=[item],
+                num_titles=request.n
+            )
+        else:
+            prompts = generator.generate_titles_by_industry(
+                primary_industry=first_id,
+                secondary_industry=second_id,
+                seo_keywords=[],
+                num_titles=request.n
+            )
+    else:
+        prompts = generator.generate_titles_by_title(
+            primary_industry=first_id,
+            secondary_industry=second_id,
+            seo_keywords=keywords,
+            num_titles=request.n
+        ) if len(keywords) == 1 and len(keywords[0]) >= 7 else generator.generate_titles(
+            primary_industry=first_id,
+            secondary_industry=second_id,
+            seo_keywords=keywords,
+            num_titles=request.n
+        )
+
 
     choices = []
     chat_completions = []

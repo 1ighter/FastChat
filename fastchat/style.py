@@ -96,15 +96,46 @@ class AdTitleGenerator:
 
         return results
 
+    def generate_titles_by_industry(self,
+                        primary_industry: str,
+                        secondary_industry: str,
+                        seo_keywords: List[str],
+                        num_titles: int = 10) -> List[str]:
+        """
+        根据行业生成广告标题
+        :param primary_industry:
+        :param secondary_industry:
+        :param num_titles:
+        :return:
+        """
+        results = []
+        for _ in range(num_titles):
+            prompts =  [
+    f"请根据以下行业生成一条广告标题：一级行业是{primary_industry}，二级行业是{secondary_industry}。要求包含数字和痛点刺激，采用'X个必知避坑'结构，15字内生成b站爆款标题。",
+    f"请根据以下行业生成一条广告标题：一级行业是{primary_industry}，二级行业是{secondary_industry}。使用'2024最新'等时效词+技术创新关键词，模仿行业报告体例生成。",
+    f"请根据以下行业生成一条广告标题：一级行业是{primary_industry}，二级行业是{secondary_industry}。制造认知反差，采用'居然/原来'转折词+emoji符号生成b站高赞标题。",
+    f"请根据以下行业生成一条广告标题：一级行业是{primary_industry}，二级行业是{secondary_industry}。按'99%人不知道的XX秘籍'结构生成b站SEO标题，突出信息稀缺性。",
+    f"请根据以下行业生成一条广告标题：一级行业是{primary_industry}，二级行业是{secondary_industry}。结合场景化痛点，使用'遇到XX怎么办？'设问句式生成b站问答标题。",
+    f"请根据以下行业生成一条广告标题：一级行业是{primary_industry}，二级行业是{secondary_industry}。采用'XXX vs XXX'对比结构生成电商商品标题，突出性能优势。",
+    f"请根据以下行业生成一条广告标题：一级行业是{primary_industry}，二级行业是{secondary_industry}。按'手把手/保姆级'关键词生成新手教程标题，强调零基础速成。",
+    f"请根据以下行业生成一条广告标题：一级行业是{primary_industry}，二级行业是{secondary_industry}。用'所有XX人都该看'绝对词+互动句式生成微博话题标题。",
+    f"请根据以下行业生成一条广告标题：一级行业是{primary_industry}，二级行业是{secondary_industry}。生成速卖通商品智能标题。",
+    f"请根据以下行业生成一条广告标题：一级行业是{primary_industry}，二级行业是{secondary_industry}。采用情感营销策略生成朋友圈文案标题，触发用户共鸣。"
+        ]
+
+            results.append(random.choice(prompts))
+
+        return results
+
 
 # 使用示例（参考资料<a target="_blank" href="https://blog.51cto.com/topic/79a01a9e252399c.html" class="hitref" data-title="python 将模型封装成服务_51CTO博客" data-snippet='51CTO博客已为您找到关于python 将模型封装成服务的相关内容,包含IT学习相关文档代码介绍、相关教程视频课程,以及python 将模型封装成服务问答内容。更多python 将模型封装成...' data-url="https://blog.51cto.com/topic/79a01a9e252399c.html">3</a><a target="_blank" href="https://blog.51cto.com/topic/c8e3dbee2d13be0.html" class="hitref" data-title="python在线封装_51CTO博客" data-snippet='51CTO博客已为您找到关于python在线封装的相关内容,包含IT学习相关文档代码介绍、相关教程视频课程,以及python在线封装问答内容。更多python在线封装相关解答可以来51CTO博客...' data-url="https://blog.51cto.com/topic/c8e3dbee2d13be0.html">5</a>）
 if __name__ == "__main__":
     generator = AdTitleGenerator()
-    titles = generator.generate_titles_by_title(
+    titles = generator.generate_titles_by_industry(
         primary_industry="美妆",
         secondary_industry="护肤品",
         seo_keywords=["茶吧机牌子哪个好"],
-        num_titles=3
+        num_titles=10
     )
     for idx, title in enumerate(titles, 1):
         print(f"标题{idx}: {title}")
